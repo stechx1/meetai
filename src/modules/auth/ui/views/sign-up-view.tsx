@@ -19,7 +19,6 @@ import {
 } from '@/components/ui/form';
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 const formSchema = z
@@ -35,7 +34,6 @@ const formSchema = z
   });
 
 export const SignUpView = () => {
-  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const form = useForm<z.infer<typeof formSchema>>({
@@ -48,6 +46,26 @@ export const SignUpView = () => {
     },
   });
 
+  const onSocial = (provider: "github" | "google") => {
+    setError(null);
+    setLoading(true);
+    authClient.signIn.social(
+      {
+        provider,
+        callbackURL: "/"
+      },
+      {
+        onSuccess: () => {
+          setLoading(false);
+        },
+        onError: ({ error }) => {
+          setLoading(false);
+          setError(error.message);
+        },
+      }
+    );
+  };
+
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     setError(null);
     setLoading(true);
@@ -56,11 +74,11 @@ export const SignUpView = () => {
         name: data.name,
         email: data.email,
         password: data.password,
+        callbackURL: "/"
       },
       {
         onSuccess: () => {
           setLoading(false);
-          router.push('/');
         },
         onError: ({ error }) => {
           setLoading(false);
@@ -179,10 +197,20 @@ export const SignUpView = () => {
                   </span>
                 </div>
                 <div className='grid grid-cols-2 gap-4'>
-                  <Button variant={'outline'} type='button' className='w-full'>
+                  <Button
+                    onClick={() =>  onSocial('google')}
+                    variant={'outline'}
+                    type='button'
+                    className='w-full cursor-pointer'
+                  >
                     Google
                   </Button>
-                  <Button variant={'outline'} type='button' className='w-full'>
+                  <Button
+                    onClick={() => onSocial('github')}
+                    variant={'outline'}
+                    type='button'
+                    className='w-full cursor-pointer'
+                  >
                     Github
                   </Button>
                 </div>
