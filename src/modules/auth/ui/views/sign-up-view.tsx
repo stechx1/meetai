@@ -3,6 +3,8 @@
 import { z } from 'zod';
 import { OctagonAlertIcon } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { FaGithub, FaGoogle } from 'react-icons/fa';
+
 
 import { Input } from '@/components/ui/input';
 import { authClient } from '@/lib/auth-client';
@@ -20,6 +22,7 @@ import {
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 const formSchema = z
   .object({
@@ -36,6 +39,7 @@ const formSchema = z
 export const SignUpView = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -79,6 +83,7 @@ export const SignUpView = () => {
       {
         onSuccess: () => {
           setLoading(false);
+          router.push('/');
         },
         onError: ({ error }) => {
           setLoading(false);
@@ -203,7 +208,7 @@ export const SignUpView = () => {
                     type='button'
                     className='w-full cursor-pointer'
                   >
-                    Google
+                    <FaGoogle/>
                   </Button>
                   <Button
                     onClick={() => onSocial('github')}
@@ -211,7 +216,7 @@ export const SignUpView = () => {
                     type='button'
                     className='w-full cursor-pointer'
                   >
-                    Github
+                    <FaGithub/>
                   </Button>
                 </div>
                 <div className='text-center text-sm'>
