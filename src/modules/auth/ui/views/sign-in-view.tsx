@@ -3,6 +3,7 @@
 import { z } from 'zod';
 import { OctagonAlertIcon } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { FaGithub, FaGoogle } from 'react-icons/fa';
 
 import { Input } from '@/components/ui/input';
 import { authClient } from '@/lib/auth-client';
@@ -19,8 +20,8 @@ import {
 } from '@/components/ui/form';
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -41,19 +42,40 @@ export const SignInView = () => {
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     setError(null);
-    setLoading(true)
+    setLoading(true);
     authClient.signIn.email(
       {
         email: data.email,
         password: data.password,
+        callbackURL: '/',
       },
       {
         onSuccess: () => {
-          setLoading(false)
+          setLoading(false);
           router.push('/');
         },
         onError: ({ error }) => {
-          setLoading(false)
+          setLoading(false);
+          setError(error.message);
+        },
+      }
+    );
+  };
+
+  const onSocialSubmit = (provider: 'github' | 'google') => {
+    setError(null);
+    setLoading(true);
+    authClient.signIn.social(
+      {
+        provider,
+        callbackURL: '/',
+      },
+      {
+        onSuccess: () => {
+          setLoading(false);
+        },
+        onError: ({ error }) => {
+          setLoading(false);
           setError(error.message);
         },
       }
@@ -118,7 +140,11 @@ export const SignInView = () => {
                     <AlertTitle>{error}</AlertTitle>
                   </Alert>
                 )}
-                <Button disabled={loading} type='submit' className='w-full'>
+                <Button
+                  disabled={loading}
+                  type='submit'
+                  className='w-full cursor-pointer'
+                >
                   Sign In
                 </Button>
                 <div className='after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t'>
@@ -127,11 +153,21 @@ export const SignInView = () => {
                   </span>
                 </div>
                 <div className='grid grid-cols-2 gap-4'>
-                  <Button variant={'outline'} type='button' className='w-full'>
-                    Google
+                  <Button
+                    onClick={() => onSocialSubmit('google')}
+                    variant={'outline'}
+                    type='button'
+                    className='w-full cursor-pointer'
+                  >
+                    <FaGoogle/>
                   </Button>
-                  <Button variant={'outline'} type='button' className='w-full'>
-                    Github
+                  <Button
+                    onClick={() => onSocialSubmit('github')}
+                    variant={'outline'}
+                    type='button'
+                    className='w-full cursor-pointer'
+                  >
+                    <FaGithub />
                   </Button>
                 </div>
                 <div className='text-center text-sm'>
